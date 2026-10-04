@@ -25,7 +25,7 @@ target "_common" {
   dockerfile = "Dockerfile"
   platforms  = ["linux/arm64"]
   labels = {
-    "org.opencontainers.image.description" = "Unofficial container image of the SteamOS (holo) userland for Steam Frame (deckard)"
+    "org.opencontainers.image.description" = "Unofficial SteamOS(holo) Steam Frame ARM64 Docker image"
     "org.opencontainers.image.source"      = SOURCE
     "org.opencontainers.image.revision"    = REVISION
     "org.opencontainers.image.created"     = CREATED
