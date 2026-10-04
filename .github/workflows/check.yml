@@ -1,8 +1,9 @@
 name: check
 
 on:
-  schedule:
-    - cron: "13 * * * *"
+  # temporary using external cron schedule
+  # schedule:
+  #  - cron: "13 * * * *"
   workflow_dispatch:
     inputs:
       branch:
