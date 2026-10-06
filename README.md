@@ -28,6 +28,40 @@ You can also use branch tags like `base-devel-beta`, `base-main`, etc.
 docker run -it --rm ghcr.io/aeongdesu/holo-deckard:latest
 ```
 
+also supports [`docker.io/aeongdesu/holo-deckard`](https://hub.docker.com/r/aeongdesu/holo-deckard) as alternative
+
+
+
+## Flowchart
+```mermaid
+flowchart LR
+    A[steamos atomupd update server]
+    --> B[resolve.py]
+
+    B -->|existing build| C[tag sync]
+    C --> GHCR[ghcr.io]
+
+    B -->|New build| D[.rauc download & verification]
+
+    D --> E[desync rootfs reconstruction]
+    E --> F[sanitize.py]
+    F --> G[pkgsets.py]
+
+    G --> H1[base]
+    G --> H2[base-devel]
+    G --> H3[full]
+
+    H1 --> I[compressed rootfs layers]
+    H2 --> I
+    H3 --> I
+
+    I --> J[docker buildx bake]
+    J --> K[smoke tests & secret gate]
+    K --> GHCR
+
+    GHCR --> L[ghcr.io provenance attestation]
+    GHCR --> M[docker.io mirror]
+```
 
 ---
 
