@@ -6,6 +6,7 @@ import re
 import sys
 
 VARIANTS = ("base", "base-devel", "full")
+MIRROR_VARIANTS = ("base", "base-devel")
 DEFAULT_VARIANT = "base"
 DEFAULT_BRANCH = "stable"
 _TAG_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$")
@@ -43,7 +44,7 @@ def bake_var(variant):
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__)
     sub = p.add_subparsers(dest="cmd", required=True)
-    for name in ("bake", "list"):
+    for name in ("bake", "list", "mirror"):
         s = sub.add_parser(name)
         s.add_argument("--image", required=True)
         s.add_argument("--buildid", required=True)
@@ -57,6 +58,10 @@ def main(argv=None):
         for v in VARIANTS:
             refs = [f"{a.image}:{t}" for t in all_tags(v, a.buildid, branches)]
             print(f"{bake_var(v)}={','.join(refs)}")
+    elif a.cmd == "mirror":
+        for v in MIRROR_VARIANTS:
+            for t in all_tags(v, a.buildid, branches):
+                print(f"{v} {a.image}:{t}")
     else:
         for t in all_tags(a.variant, a.buildid, branches):
             print(f"{a.image}:{t}")

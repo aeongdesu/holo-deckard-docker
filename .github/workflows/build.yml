@@ -25,6 +25,10 @@ on:
       image:
         type: string
         required: true
+      mirror_image:
+        description: Docker Hub image to mirror to; empty disables mirroring
+        type: string
+        default: ""
       meta_url:
         type: string
         required: true
@@ -263,3 +267,20 @@ jobs:
           subject-name: ${{ inputs.image }}
           subject-digest: ${{ steps.push.outputs.full }}
           push-to-registry: true
+
+      - uses: docker/login-action@v4
+        if: inputs.mirror_image != ''
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Mirror to Docker Hub
+        if: inputs.mirror_image != ''
+        env:
+          MIRROR_IMAGE: ${{ inputs.mirror_image }}
+        run: |
+          python3 scripts/tags.py mirror --image "$MIRROR_IMAGE" --buildid "$BUILDID" --branches "$BRANCHES" \
+            | while read -r v dst; do
+                echo "$IMAGE:$v-$BUILDID -> $dst"
+                skopeo copy --all --preserve-digests "docker://$IMAGE:$v-$BUILDID" "docker://$dst"
+              done
