@@ -242,12 +242,15 @@ jobs:
 
       - name: Push
         id: push
+        env:
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           for v in base base-devel full; do
             python3 scripts/tags.py list --image "$IMAGE" --buildid "$BUILDID" --branches "$BRANCHES" --variant "$v" \
               | while read -r ref; do docker push -q "$ref"; done
-            digest=$(skopeo inspect --raw "docker://$IMAGE:$v-$BUILDID" | sha256sum | cut -d' ' -f1)
-            echo "${v//-/_}=sha256:$digest" >> "$GITHUB_OUTPUT"
+            digest=$(python3 scripts/registry.py digest "$IMAGE:$v-$BUILDID")
+            echo "${v//-/_}=$digest" >> "$GITHUB_OUTPUT"
           done
 
       - uses: actions/attest-build-provenance@v4
